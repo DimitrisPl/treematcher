@@ -277,6 +277,7 @@ class TreePattern(Tree):
         controller["low"] = 0
         controller["high"] = -1
         controller["skipped"] = 0
+        controller["not"] = False
 
         # update controller in case of root or leaf metacharacters and set the node name
         if SYMBOL["is_root"] in self.name:
@@ -285,6 +286,10 @@ class TreePattern(Tree):
         if SYMBOL["is_leaf"] in self.name:
             controller["leaf"] = True
             self.name = self.name.split(SYMBOL["is_leaf"])[0]
+
+        if SYMBOL["not"] in self.name:
+            controller["not"] = True
+            self.name = self.name.split(SYMBOL["not"])[1]
 
         # update controller according to metacharacter connection properties.
         if self.name == SYMBOL["one_or_more"]:
@@ -341,6 +346,9 @@ class TreePattern(Tree):
                 self.controller["skipped"] += 1
         elif self.controller["allow_indirect_connection"] and self.controller["skipped"] == 0:
             self.controller["skipped"] += 1
+
+        if self.controller["not"] and status:
+            status = False
 
 
         # if so, continues evaluating children pattern nodes against target node
@@ -402,9 +410,9 @@ class TreePattern(Tree):
                                 status = False
                     if status and sub_status_count > 0:
                         break
-
-        # 'skipped' tracks the maximum skipped node. So only in case of not match, it decreases
-        if not status and self.controller["allow_indirect_connection"]: self.controller["skipped"] -= 1
+                        if not status and self.controller["allow_indirect_connection"]:
+                            # 'skipped' tracks the maximum skipped node. So only in case of not match, it decreases
+                            self.controller["skipped"] -= 1
         return status
 
 
@@ -569,7 +577,6 @@ def test():
             if list(pattern.find_match(tree, maxhits=None)):
                 pattern_match += [tree_num+1]
         print(pattern_match == true_match[p_num])
-
 
 if __name__ == '__main__':
     test()
