@@ -613,10 +613,10 @@ def test():
 
     pt8 = TreePattern(""" '@.dist > [:any_child:].dist' ; """, quoted_node_names=True)
     pt9 = TreePattern(""" '@.dist > [:children:].dist'; """, quoted_node_names=True)
-    pt10 = TreePattern ("""" '@.dist > [:all_nodes:].dist' ; """, quoted_node_names=True)
+    pt10 = TreePattern (""" '@.dist > [:all_nodes:].dist' ; """, quoted_node_names=True)
 
     group_one = [pt1, pt2, pt3, pt4, pt5, pt6]
-    group_two = [pt8, pt9]
+    group_two = [pt8, pt9, pt10]
 
 
     with open('/home/dpliakos/Desktop/benchmark/bi.trees') as f:
