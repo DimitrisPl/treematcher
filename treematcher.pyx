@@ -663,4 +663,35 @@ def test():
 
 
 if __name__ == '__main__':
-    test()
+    pt1 = TreePattern(" (@)@ ; ")
+    pt2 = TreePattern(" (@)@^ ;")
+    pt3 = TreePattern(" (@$)@ ;")
+    pt4 = TreePattern(" ((@)*)@;")
+    pt5 = TreePattern(" ((@)+)@;")
+    pt6 = TreePattern(" ((@)?)@;")
+
+
+    pt8 = TreePattern(""" '@.dist > [:any_child:].dist' ; """, quoted_node_names=True)
+    pt9 = TreePattern(""" '@.dist > [:children:].dist'; """, quoted_node_names=True)
+    pt10 = TreePattern ("""" '@.dist > [:all_nodes:].dist' ; """, quoted_node_names=True)
+
+    group_one = [pt1, pt2, pt3, pt4, pt5, pt6]
+    group_two = [pt8, pt9]
+
+
+    with open('/home/dpliakos/Desktop/benchmark/bi.trees') as f:
+        for line in f:
+            #line = f.readline()
+            if len(line) > 2:
+                #second.enable
+                tree = Tree(line)
+                #second.disable()
+                #searchTrees(tree)
+
+                #pr.enable()
+                for pattern in group_one:
+                    pattern.find_match(tree, maxhits=None)
+                    #print len(list(result))
+
+                for pattern in group_two:
+                    result = pattern.find_match(tree, maxhits=None)
