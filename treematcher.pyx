@@ -663,6 +663,7 @@ def test():
 
 
 if __name__ == '__main__':
+    print "lalalala"
     pt1 = TreePattern(" (@)@ ; ")
     pt2 = TreePattern(" (@)@^ ;")
     pt3 = TreePattern(" (@$)@ ;")
