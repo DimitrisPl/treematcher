@@ -288,8 +288,9 @@ class TreePattern(Tree):
                 raise ValueError("not a boolean result: . Check quoted_node_names.")
 
             except (AttributeError, IndexError) as err:
-                raise ValueError('Constraint evaluation failed at %s: %s' %
-                                 (target_node, err))
+                #raise ValueError('Constraint evaluation failed at %s: %s' %
+                #                 (target_node, err))
+                pass
             except NameError:
                 try:
                     # temporary fix. Can not access custom syntax on all nodes. Get it from the root node.
@@ -303,8 +304,9 @@ class TreePattern(Tree):
                     if st: correct_node = node
 
                 except NameError as err:
-                    raise NameError('Constraint evaluation failed at %s: %s' %
-                             (target_node, err))
+                    #raise NameError('Constraint evaluation failed at %s: %s' %
+                    #         (target_node, err))
+                    pass
             else:
                 if st: correct_node = node
         return correct_node
@@ -333,20 +335,20 @@ class TreePattern(Tree):
         It describes how the metacharacter connects with the rest of nodes and
         if it is leaf or root.
         """
-        controller = {}
+        cdef dict controller = {}
 
         # bounds and (already) skipped nodes values
-        controller["low"] = 0
-        controller["high"] = -1
-        controller["skipped"] = 0
-        controller["single_match"] = False
+        controller["low"] = <int> 0
+        controller["high"] = <int> -1
+        controller["skipped"] = <int> 0
+        controller["single_match"] = <bint> False
 
         # update controller in case of root or leaf metacharacters and set the node name
         if SYMBOL["is_root"] in self.name:
-            controller["root"] = True
+            controller["root"] = <bint> True
             self.name = self.name.split(SYMBOL["is_root"])[0]
         if SYMBOL["is_leaf"] in self.name:
-            controller["leaf"] = True
+            controller["leaf"] = <bint> True
             self.name = self.name.split(SYMBOL["is_leaf"])[0]
 
         # transform sets to the corresponding code
@@ -355,32 +357,32 @@ class TreePattern(Tree):
         if SYMBOL["children"] in self.name:
             self.name = " all( " + self.name.split("[")[0] + " " + ("[" + self.name.split("[")[1]).replace(SYMBOL["children"], "x") + " for x in __target_node.children)"
         if SYMBOL["all_nodes"] in self.name:
-            controller["single_match"] = True
+            controller["single_match"] = <bint> True
             controller["single_match_contstraint"] = self.name
             self.name = '@'
 
         # update controller according to metacharacter connection properties.
         if self.name == SYMBOL["one_or_more"]:
-            controller["allow_indirect_connection"] = True
-            controller["direct_connection_first"] = False
+            controller["allow_indirect_connection"] = <bint> True
+            controller["direct_connection_first"] = <bint> False
         elif self.name == SYMBOL["zero_or_more"]:
-            controller["allow_indirect_connection"] = True
-            controller["direct_connection_first"] = True
+            controller["allow_indirect_connection"] = <bint> True
+            controller["direct_connection_first"] = <bint> True
         elif self.name == SYMBOL["zero_or_one"]:
-            controller["direct_connection_first"] = True
-            controller["allow_indirect_connection"] = True
+            controller["direct_connection_first"] = <bint> True
+            controller["allow_indirect_connection"] = <bint> True
             controller["high"] = 1
         elif '{' in self.name:
             split = self.name.split('{')
             self.name = split[0]
             bounds = self.decode_repeat_symbol(split[1])
-            controller["low"] = bounds[0]
-            controller["high"] = bounds[1]
-            controller["allow_indirect_connection"] = True
-            if controller["low"]  == 0: controller["direct_connection_first"] = True
-            else: controller["direct_connection_first"] = False
+            controller["low"] = <int> bounds[0]
+            controller["high"] = <int> bounds[1]
+            controller["allow_indirect_connection"] = <bint> True
+            if controller["low"]  == 0: controller["direct_connection_first"] = <bint> True
+            controller["direct_connection_first"] = <bint> False
         else:
-            controller["allow_indirect_connection"] = False
+            controller["allow_indirect_connection"] = <bint> False
             controller["direct_connection_first"] = False
 
         self.controller = controller
