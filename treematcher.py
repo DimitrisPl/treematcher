@@ -380,6 +380,8 @@ class TreePattern(Tree):
                 controller["root"] = True
             if metacharacter == SYMBOL["is_leaf"]:
                 controller["leaf"] = True
+            if metacharacter == SYMBOL["not"]:
+                controller["not"] = True
 
             # update controller according to metacharacter connection properties.
             if metacharacter == SYMBOL["one_or_more"]:
@@ -418,6 +420,7 @@ class TreePattern(Tree):
             metacharacters = self.parse_metacharacters()
 
         # bounds, (already) skipped nodes values and connection properties.
+        controller["not"] = False
         controller["low"] = 0
         controller["high"] = -1
         controller["skipped"] = 0
@@ -466,6 +469,9 @@ class TreePattern(Tree):
             self = self.children[0]
 
         status = self.is_local_match(node, cache)
+
+        if not self.is_leaf and self.controller["not"]:
+            status = not status
 
         if not status:
             if self.controller["allow_indirect_connection"] and self.is_leaf():
@@ -528,7 +534,7 @@ class TreePattern(Tree):
 
                                 #print "testing: " + self.children[i].name + " -- " + candidate[j].name + " -- st: " + str(st) + " -- subst: " + str(sub_status)
 
-                                if self.children[i].is_leaf() and self.children[i].controller["allow_indirect_connection"] and sub_status: # REVIEW ME
+                                if self.children[i].is_leaf() and (self.children[i].controller["allow_indirect_connection"] or self.children[i].controller["not"]) and sub_status: # REVIEW ME
                                     test_children_properties = True
                                     if st:
                                         current_matched += 1
@@ -566,11 +572,15 @@ class TreePattern(Tree):
                                     low_test = self.children[-1].is_in_bounds("low", con_matches)
                                     high_test = self.children[-1].is_in_bounds("high", con_matches)
                                     sub_sub_status |= low_test and high_test
+                                    #sub_sub_status = not sub_sub_status
                                 sub_status = sub_sub_status
                             #print "exited with sub_sub_status: " + str(sub_status)
                             #if not self.children[-1].controller["direct_connection_first"]:
                             elif self.children[-1].controller["direct_connection_first"]:
                                 sub_sub_status = True
+                            if self.children[-1].controller["not"]:
+                                print "not case"
+                                sub_sub_status = not sub_sub_status
                             sub_status = sub_sub_status
                             status = sub_status
                             if sub_status: sub_status_count += 1
@@ -708,7 +718,7 @@ def test():
     (t3&'e').dist = 0.5
     (t3&'f').dist = 0.5
 
-    pattern1 = TreePattern(""" (('d', '@.dist > 0.5, *')'b')'a, ^' ;""", quoted_node_names=True)
+    pattern1 = TreePattern(""" (('d!', '@.dist > 0.4')'b')'a, ^' ;""", quoted_node_names=True)
     print len(list(pattern1.find_match(t3))) > 0
 
 if __name__ == '__main__':

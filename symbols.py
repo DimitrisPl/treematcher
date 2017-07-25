@@ -3,6 +3,7 @@ SYMBOL = {
 	'node_reference': '@',
 	'is_root': '^',
 	'is_leaf': '$',
+	'not': '!',
 	'zero_or_more': '*',
 	'one_or_more': '+',
 	'zero_or_one': '?',
