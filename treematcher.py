@@ -469,11 +469,11 @@ class TreePattern(Tree):
 
         status = self.is_local_match(node, cache)
 
-        changed = False
-        real_ref = self
+        #changed = False
+        #real_ref = self
         if not status:
             if self.up is not None and self.up.controller["allow_indirect_connection"] and self.up.is_in_bounds("high"):  # skip node by resetting pattern
-                changed = True
+                #changed = True
                 status = True
                 self = self.up
                 self.controller["skipped"] += 1
@@ -524,7 +524,7 @@ class TreePattern(Tree):
                     if len(node.children) >= len(self.children):
                         for candidate in permutations(node.children):
                             sub_status = True
-                            can_bypass = True
+                            #can_bypass = True
                             global counter
                             global line
                             line += 1
@@ -532,15 +532,18 @@ class TreePattern(Tree):
                             #print "len: " + str(len(self.children)) + " range: " + str([num for num in range(len(self.children))])
                             lolo = 0
                             for i in range(len(self.children)):
-                                lolo += 1
-                                print "\tchildren[" + str(i) + "]" + self.children[i].name + " and candidate[" + str(i) + "] " + candidate[i].name #+ " -- " + str(st)
+                                global line
+                                line += 1
+                                #lolo += 1
+                                print str(line) + "|\tchildren[" + str(i) + "]" + self.children[i].name + " and candidate[" + str(i) + "] " + candidate[i].name #+ " -- " + str(st)
                                 st = self.children[i].match(candidate[i], cache)
                                 if st and not self.is_in_bounds("low"):
                                     # in case it matches, but has exited the lower bound (in case it exist), force False the match
                                     st = False
-                                if st == False and self.controller["allow_indirect_connection"] and len(candidate[i].children) > 0 and can_bypass :
+                                if st == False and self.controller["allow_indirect_connection"] and len(candidate[i].children) > 0: # and can_bypass :
                                     #can_bypass = False
-                                    passed += 1
+                                    #passed += 1
+                                    pass
 
                                 else:
                                     sub_status &= st
@@ -567,8 +570,8 @@ class TreePattern(Tree):
         print str(line) + "|match[" + str(counter) + "]: returns "+ str(status)
         counter -= 1
 
-        if changed:
-            self = real_ref
+        #if changed:
+        #    self = real_ref
         return status
 
 
