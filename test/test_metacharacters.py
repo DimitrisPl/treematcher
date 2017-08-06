@@ -56,8 +56,10 @@ class Test_basic_one_or_more_test(unittest.TestCase):
         pattern3 = TreePattern(""" (('e','f','g')'+') 'a' ;""", quoted_node_names=True)
         pattern4 = TreePattern(""" ((('g','h','i')+)'d',('e','f','g')'+') 'a' ;""", quoted_node_names=True)
 
+        print t10.get_ascii()
+
         pattern1_match = [3, 4, 5, 6, 7, 8, 9, 10, 11]
-        pattern2_match = [3, 4, 5, 7, 8, 9, 10]
+        pattern2_match = [3, 4, 5, 7, 8, 9]
         pattern3_match = [7, 8, 10, 11]
         pattern4_match = [11]
         true_match = [pattern1_match, pattern2_match, pattern3_match, pattern4_match]
@@ -69,6 +71,11 @@ class Test_basic_one_or_more_test(unittest.TestCase):
             for tree_num, tree in enumerate([t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11]):
                 if list(pattern.find_match(tree, maxhits=None)):
                     pattern_match += [tree_num+1]
+
+            print  "----------------"
+            print pattern_match
+            print true_match[p_num]
+            print  "----------------"
             test_flag &= (pattern_match == true_match[p_num])
 
         self.assertTrue(test_flag)

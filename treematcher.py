@@ -367,7 +367,7 @@ class TreePattern(Tree):
             if len(expressions[i]) > 0 and all(letter.isalpha() for letter in expressions[i]):
                 expressions[i] = '@.name == "' + expressions[i] + '"'
 
-        # prevents the " _expressions_ ... and  __empty_exp__ " case 
+        # prevents the " _expressions_ ... and  __empty_exp__ " case
         return " and ".join(exp for exp in expressions if len(exp) > 0)
 
 
@@ -391,7 +391,7 @@ class TreePattern(Tree):
         controller["single_match"] = False
         controller["allow_indirect_connection"] = False
         controller["direct_connection_first"] = False
-
+        controller["children_tested"] = False
 
         for metacharacter in metacharacters:
 
@@ -519,7 +519,8 @@ class TreePattern(Tree):
                                 else:
                                     sub_status &= st
                                     if sub_status == True: sub_status_count += 1
-
+                                if self.controller["children_tested"]:
+                                    break
                             if sub_status and sub_status_count > 0:
                                 status = True
                                 break
@@ -528,6 +529,8 @@ class TreePattern(Tree):
                     if status and sub_status_count > 0:
                         break
 
+        if self.controller["allow_indirect_connection"]:
+            self.controller["children_tested"] = status
         # 'skipped' tracks the maximum skipped node. So only in case of not match, it decreases
         if not status and self.controller["allow_indirect_connection"]: self.controller["skipped"] -= 1
         return status
