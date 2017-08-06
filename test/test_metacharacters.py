@@ -69,6 +69,11 @@ class Test_basic_one_or_more_test(unittest.TestCase):
             for tree_num, tree in enumerate([t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11]):
                 if list(pattern.find_match(tree, maxhits=None)):
                     pattern_match += [tree_num+1]
+
+            print "-------------"
+            print pattern_match
+            print true_match[p_num]
+            print "-------------"
             test_flag &= (pattern_match == true_match[p_num])
 
         self.assertTrue(test_flag)
@@ -438,6 +443,17 @@ class Test_node_name_parsing(unittest.TestCase):
             matches += [current_matches]
 
         self.assertTrue(true_matches == matches)
+
+class Test_demon_match(unittest.TestCase):
+
+    def test_demon(self):
+        a = Tree('(( (((A,B)p5, X)p6, Y)p7, (Z, (W, (C, D)p1)p2)p3)p4 , E)root;', format=1)
+        b = TreePattern(" ((A,B)+, (C, D)+)@ ; ")
+
+        result = len(list(b.find_match(a)))
+        self.assertTrue(result > 0)
+
+
 
 if __name__ == '__main__':
     unittest.main()

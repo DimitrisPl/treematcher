@@ -15,6 +15,9 @@ from symbols import SYMBOL, SET
 #developement modules
 from sys import exit
 
+#debuging variables
+global counter
+counter = 0
 
 class TreePatternCache(object):
     def __init__(self, tree):
@@ -367,7 +370,7 @@ class TreePattern(Tree):
             if len(expressions[i]) > 0 and all(letter.isalpha() for letter in expressions[i]):
                 expressions[i] = '@.name == "' + expressions[i] + '"'
 
-        # prevents the " _expressions_ ... and  __empty_exp__ " case 
+        # prevents the " _expressions_ ... and  __empty_exp__ " case
         return " and ".join(exp for exp in expressions if len(exp) > 0)
 
 
@@ -454,16 +457,25 @@ class TreePattern(Tree):
 
         #check the zero intermediate node case.
         #assumes that SYMBOL["zero_or_more"] has only one child.
+
+        global counter
+        counter += 1
+        print "match[" + str(counter) + "]: entering " + self.name  + " against " + node.name
         if self.controller["direct_connection_first"]:
             self = self.children[0]
 
         status = self.is_local_match(node, cache)
 
+        changed = False
+        real_ref = self
         if not status:
             if self.up is not None and self.up.controller["allow_indirect_connection"] and self.up.is_in_bounds("high"):  # skip node by resetting pattern
+                changed = True
                 status = True
                 self = self.up
                 self.controller["skipped"] += 1
+                global count
+                print "match[" + str(counter) + "]: " + self.name + " -->  + "
         elif self.controller["allow_indirect_connection"] and self.controller["skipped"] == 0:
             self.controller["skipped"] += 1
 
@@ -499,37 +511,53 @@ class TreePattern(Tree):
                 # If pattern node expects children nodes, tries to find a
                 # combination of target node children that match the pattern
 
-                if len(nodes) == 0:
-                    nodes = [node]
-
+                #if len(nodes) == 0:
+                nodes = [node]
                 for node in nodes:
                     sub_status_count = 0
+                    passed = 0
                     if len(node.children) >= len(self.children):
                         for candidate in permutations(node.children):
                             sub_status = True
-
+                            can_bypass = True
+                            global counter
+                            print "match[" + str(counter) + "] node: " + self.name + ", with "  + str([lala.name for lala in candidate])
+                            #print "len: " + str(len(self.children)) + " range: " + str([num for num in range(len(self.children))])
+                            lolo = 0
                             for i in range(len(self.children)):
+                                lolo += 1
+                                print "\tchildren[" + str(i) + "]" + self.children[i].name + " and candidate[" + str(i) + "] " + candidate[i].name #+ " -- " + str(st)
                                 st = self.children[i].match(candidate[i], cache)
                                 if st and not self.is_in_bounds("low"):
                                     # in case it matches, but has exited the lower bound (in case it exist), force False the match
                                     st = False
-                                if st == False and self.controller["allow_indirect_connection"] and len(candidate[i].children) > 0:
-                                    pass
+                                if st == False and self.controller["allow_indirect_connection"] and len(candidate[i].children) > 0 and can_bypass :
+                                    #can_bypass = False
+                                    passed += 1
 
                                 else:
                                     sub_status &= st
-                                    if sub_status == True: sub_status_count += 1
-
-                            if sub_status and sub_status_count > 0:
+                                    if sub_status:
+                                        sub_status_count += 1
+                            #print "match[" + str(counter) + "]: loops = " + str(lolo)
+                            if sub_status and sub_status_count + passed > 0:
+                                sub_status_count += 1
                                 status = True
                                 break
                             else:
+                                print "match[" + str(counter) + "]: Force false"
                                 status = False
-                    if status and sub_status_count > 0:
+                    if status and sub_status_count + passed > 0:
                         break
 
         # 'skipped' tracks the maximum skipped node. So only in case of not match, it decreases
         if not status and self.controller["allow_indirect_connection"]: self.controller["skipped"] -= 1
+        global counter
+        print "match[" + str(counter) + "]: returns "+ str(status)
+        counter -= 1
+
+        if changed:
+            self = real_ref
         return status
 
 
