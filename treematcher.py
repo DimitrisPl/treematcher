@@ -16,7 +16,7 @@ from symbols import SYMBOL, SET
 from sys import exit
 
 #debuging variables
-#global counter
+global counter
 counter = 0
 line = 0
 
@@ -396,6 +396,7 @@ class TreePattern(Tree):
         controller["allow_indirect_connection"] = False
         controller["direct_connection_first"] = False
         controller["used"] = False
+        controller["children_tested"] = False
 
 
         for metacharacter in metacharacters:
@@ -473,14 +474,14 @@ class TreePattern(Tree):
         #changed = False
         #real_ref = self
         if not status:
-            if self.up is not None and self.up.controller["allow_indirect_connection"] and self.up.is_in_bounds("high") and not self.up.controller["used"]:  # skip node by resetting pattern
+            if self.up is not None and self.up.controller["allow_indirect_connection"] and self.up.is_in_bounds("high"): # and not self.up.controller["used"]:  # skip node by resetting pattern
                 #changed = True
                 status = True
                 self = self.up
                 self.controller["used"] = True
                 self.controller["skipped"] += 1
-                global count
-                global line
+                #global count
+                #global line
                 line += 1
                 print str(line) + "|match[" + str(counter) + "]: " + self.name + " -->  + "
         elif self.controller["allow_indirect_connection"] and self.controller["skipped"] == 0:
@@ -527,14 +528,14 @@ class TreePattern(Tree):
                         for candidate in permutations(node.children):
                             sub_status = True
                             #can_bypass = True
-                            global counter
-                            global line
+                            # global counter
+                            # global line
                             line += 1
                             print str(line) + "|match[" + str(counter) + "] node: " + self.name + ", with "  + str([lala.name for lala in candidate])
                             #print "len: " + str(len(self.children)) + " range: " + str([num for num in range(len(self.children))])
                             lolo = 0
                             for i in range(len(self.children)):
-                                global line
+                                # global line
                                 line += 1
                                 #lolo += 1
                                 print str(line) + "|match[" + str(counter) + "]: " + self.name + "." + "children[" + str(i) + "]" + self.children[i].name + " and candidate[" + str(i) + "] " + candidate[i].name #+ " -- " + str(st)
@@ -551,13 +552,15 @@ class TreePattern(Tree):
                                     sub_status &= st
                                     if sub_status:
                                         sub_status_count += 1
+                                if self.controller["children_tested"]:
+                                    break
                             #print "match[" + str(counter) + "]: loops = " + str(lolo)
                             if sub_status and sub_status_count + passed > 0:
                                 sub_status_count += 1
                                 status = True
                                 break
                             else:
-                                global line
+                                #global line
                                 line += 1
                                 print str(line) + "|match[" + str(counter) + "]: Force false"
                                 status = False
@@ -566,12 +569,13 @@ class TreePattern(Tree):
 
         # 'skipped' tracks the maximum skipped node. So only in case of not match, it decreases
         if not status and self.controller["allow_indirect_connection"]: self.controller["skipped"] -= 1
-        global counter
-        global line
+        # global counter
+        # global line
         line += 1
         print str(line) + "|match[" + str(counter) + "]: returns "+ str(status)
         counter -= 1
-
+        if self.controller["allow_indirect_connection"]:
+            self.controller["children_tested"] = status
         #if changed:
         #    self = real_ref
         return status
