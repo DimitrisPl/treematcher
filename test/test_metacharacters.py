@@ -57,7 +57,7 @@ class Test_basic_one_or_more_test(unittest.TestCase):
         pattern4 = TreePattern(""" ((('g','h','i')+)'d',('e','f','g')'+') 'a' ;""", quoted_node_names=True)
 
         pattern1_match = [3, 4, 5, 6, 7, 8, 9, 10, 11]
-        pattern2_match = [3, 4, 5, 7, 8, 9, 10]
+        pattern2_match = [3, 4, 5, 7, 8, 9]
         pattern3_match = [7, 8, 10, 11]
         pattern4_match = [11]
         true_match = [pattern1_match, pattern2_match, pattern3_match, pattern4_match]

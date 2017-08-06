@@ -519,8 +519,8 @@ class TreePattern(Tree):
                 # If pattern node expects children nodes, tries to find a
                 # combination of target node children that match the pattern
 
-                #if len(nodes) == 0:
-                nodes = [node]
+                if len(nodes) == 0:
+                    nodes = [node]
                 for node in nodes:
                     sub_status_count = 0
                     passed = 0
