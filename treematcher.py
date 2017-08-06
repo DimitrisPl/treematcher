@@ -16,8 +16,9 @@ from symbols import SYMBOL, SET
 from sys import exit
 
 #debuging variables
-global counter
+#global counter
 counter = 0
+line = 0
 
 class TreePatternCache(object):
     def __init__(self, tree):
@@ -459,8 +460,10 @@ class TreePattern(Tree):
         #assumes that SYMBOL["zero_or_more"] has only one child.
 
         global counter
+        global line
         counter += 1
-        print "match[" + str(counter) + "]: entering " + self.name  + " against " + node.name
+        line += 1
+        print str(line) + "|match[" + str(counter) + "]: entering " + self.name  + " against " + node.name
         if self.controller["direct_connection_first"]:
             self = self.children[0]
 
@@ -475,7 +478,9 @@ class TreePattern(Tree):
                 self = self.up
                 self.controller["skipped"] += 1
                 global count
-                print "match[" + str(counter) + "]: " + self.name + " -->  + "
+                global line
+                line += 1
+                print str(line) + "|match[" + str(counter) + "]: " + self.name + " -->  + "
         elif self.controller["allow_indirect_connection"] and self.controller["skipped"] == 0:
             self.controller["skipped"] += 1
 
@@ -521,7 +526,9 @@ class TreePattern(Tree):
                             sub_status = True
                             can_bypass = True
                             global counter
-                            print "match[" + str(counter) + "] node: " + self.name + ", with "  + str([lala.name for lala in candidate])
+                            global line
+                            line += 1
+                            print str(line) + "|match[" + str(counter) + "] node: " + self.name + ", with "  + str([lala.name for lala in candidate])
                             #print "len: " + str(len(self.children)) + " range: " + str([num for num in range(len(self.children))])
                             lolo = 0
                             for i in range(len(self.children)):
@@ -545,7 +552,9 @@ class TreePattern(Tree):
                                 status = True
                                 break
                             else:
-                                print "match[" + str(counter) + "]: Force false"
+                                global line
+                                line += 1
+                                print str(line) + "|match[" + str(counter) + "]: Force false"
                                 status = False
                     if status and sub_status_count + passed > 0:
                         break
@@ -553,7 +562,9 @@ class TreePattern(Tree):
         # 'skipped' tracks the maximum skipped node. So only in case of not match, it decreases
         if not status and self.controller["allow_indirect_connection"]: self.controller["skipped"] -= 1
         global counter
-        print "match[" + str(counter) + "]: returns "+ str(status)
+        global line
+        line += 1
+        print str(line) + "|match[" + str(counter) + "]: returns "+ str(status)
         counter -= 1
 
         if changed:
