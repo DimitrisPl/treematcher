@@ -395,6 +395,7 @@ class TreePattern(Tree):
         controller["single_match"] = False
         controller["allow_indirect_connection"] = False
         controller["direct_connection_first"] = False
+        controller["used"] = False
 
 
         for metacharacter in metacharacters:
@@ -472,10 +473,11 @@ class TreePattern(Tree):
         #changed = False
         #real_ref = self
         if not status:
-            if self.up is not None and self.up.controller["allow_indirect_connection"] and self.up.is_in_bounds("high"):  # skip node by resetting pattern
+            if self.up is not None and self.up.controller["allow_indirect_connection"] and self.up.is_in_bounds("high") and not self.up.controller["used"]:  # skip node by resetting pattern
                 #changed = True
                 status = True
                 self = self.up
+                self.controller["used"] = True
                 self.controller["skipped"] += 1
                 global count
                 global line
@@ -535,7 +537,7 @@ class TreePattern(Tree):
                                 global line
                                 line += 1
                                 #lolo += 1
-                                print str(line) + "|\tchildren[" + str(i) + "]" + self.children[i].name + " and candidate[" + str(i) + "] " + candidate[i].name #+ " -- " + str(st)
+                                print str(line) + "|match[" + str(counter) + "]: " + self.name + "." + "children[" + str(i) + "]" + self.children[i].name + " and candidate[" + str(i) + "] " + candidate[i].name #+ " -- " + str(st)
                                 st = self.children[i].match(candidate[i], cache)
                                 if st and not self.is_in_bounds("low"):
                                     # in case it matches, but has exited the lower bound (in case it exist), force False the match
